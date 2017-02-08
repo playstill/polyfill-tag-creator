@@ -1,0 +1,44 @@
+@font-face {
+  font-family: 'fa-playstill';
+  src:
+    url('fonts/fa-playstill.ttf?gvdb47') format('truetype'),
+    url('fonts/fa-playstill.woff?gvdb47') format('woff'),
+    url('fonts/fa-playstill.svg?gvdb47#fa-playstill') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="fa-"], [class*=" fa-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'fa-playstill' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.fa-star:before {
+  content: "\f005";
+}
+.fa-chrome:before {
+  content: "\ead9";
+}
+.fa-firefox:before {
+  content: "\eada";
+}
+.fa-IE:before {
+  content: "\eadb";
+}
+.fa-edge:before {
+  content: "\eadc";
+}
+.fa-safari:before {
+  content: "\eadd";
+}
+
