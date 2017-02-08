@@ -15,13 +15,15 @@
    <div class="alert alert-warning" v-show="link.length > 2083" role="alert">
      Maximum URL length is 2083 characters in Internet Explorer, the current script' url length is {{link.length}} characters
    </div>
-    <h3>Select needed polyfills in the table above</h3>
+    <h3>Modify script tag selecting only needed polyfills</h3>
+    <p class="info">The script tag adress will modify due to your needs</p>
     <div class="controls">
       <button @click="changeConfiguration('set_default')" class="btn btn-success btn-xs" :disabled="onlyDefaultChecked">Set to default everything</button>
       <button @click="changeConfiguration('add_default')" class="btn btn-primary btn-xs" :disabled="defaultChecked">Select all default polyfills</button>
       <button @click="changeConfiguration('uncheck_all')" class="btn btn-warning btn-xs" :disabled="allUnchecked">Deselect everything</button>
       <button @click="changeConfiguration('check_all')" class="btn btn-primary btn-xs" :disabled="allChecked">Select everything</button>
     </div>
+    <div class="table-responsive">
     <table class="table table-striped table-hover">
       <thead>
         <tr>
@@ -31,16 +33,13 @@
           <th>Firefox</th>
           <th>Chrome</th>
           <th>Safari</th>
-          <th>Default:</th>
           <th class="size-td">Size:</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><input type="checkbox" :checked="onlyDefaultChecked" disabled="disabled" /></td>
-          <td colspan="6">
-            <span>Default</span>
-            
+          <td><input type="checkbox" :checked="defaultChecked" disabled="disabled" /></td>
+          <td colspan="5">Default
           </td>
           <td class="size-td">{{defaultSize}}</td>
         </tr>
@@ -48,43 +47,31 @@
             v-show="!filter || isFiltered(prop)"
             v-for="(feature, prop) in features"
             class="feature-row"
-            :class="{checked:feature.checked}">
+            :class="{'checked success':feature.checked}">
           <td><input type="checkbox" v-model="features[prop].checked" /></td>
-          <td>{{prop}}</td>
+          <td>{{prop}}
+            <span v-if="features[prop].default"
+                  class="label label-success">
+                  <i class="fa fa-star"></i> Default
+            </span>
+          </td>
           <td class="support-td ie-support">
-              <div class="label label-primary" v-show="feature.support.ie.polyfill">
-                <i v-show="feature.support.ie.polyfill > 12" class="fa fa-edge"></i>
-                <i class="fa fa-IE" v-show="feature.support.ie.polyfill < 13"></i>
-                {{feature.support.ie.polyfill}}</div>
-              <div v-for="dis in feature.support.ie.no_support"  class="label label-danger" v-show="dis && feature.support.ie.polyfill && (dis > feature.support.ie.polyfill)" >
-                <i v-show="dis > 12" class="fa fa-edge"></i>
-                <i v-show="dis < 13" class="fa fa-IE"></i> {{dis}}</div> 
-              <div class="label label-success" v-show="feature.support.ie.native">
-                <i v-show="feature.support.ie.native > 12" class="fa fa-edge"></i>
-                <i v-show="feature.support.ie.native < 13" class="fa fa-IE"></i>
-                {{feature.support.ie.native}}
-              </div>
+            <tag-group browser="ie" :support="feature.support.ie"></tag-group>
           </td>
           <td class="support-td firefox-support">
-              <div class="label label-primary" v-show="feature.support.firefox.polyfill"><i class="fa fa-firefox"></i> {{feature.support.firefox.polyfill}}</div>
-              <div v-for="dis in feature.support.firefox.no_support" class="label label-danger" v-show="dis && feature.support.firefox.polyfill && (dis > feature.support.firefox.polyfill)" ><i class="fa fa-firefox"></i> {{dis}}</div> 
-              <div class="label label-success" v-show="feature.support.firefox.native"><i class="fa fa-firefox"></i> {{feature.support.firefox.native}}</div>
+              <tag-group browser="firefox" :support="feature.support.firefox"></tag-group>
           </td>
           <td class="support-td chrome-support">
-              <div class="label label-primary" v-show="feature.support.chrome.polyfill"><i class="fa fa-chrome"></i> {{feature.support.chrome.polyfill}}</div>
-              <div v-for="dis in feature.support.chrome.no_support" class="label label-danger" v-show="dis && feature.support.chrome.polyfill && (dis > feature.support.chrome.polyfill)" ><i class="fa fa-chrome"></i> {{dis}}</div> 
-              <div class="label label-success" v-show="feature.support.chrome.native"><i class="fa fa-chrome"></i> {{feature.support.chrome.native}}</div>
+              <tag-group browser="chrome" :support="feature.support.chrome"></tag-group>
           </td>
           <td class="support-td safari-support">
-              <div class="label label-primary" v-show="feature.support.safari.polyfill"><i class="fa fa-safari"></i> {{feature.support.safari.polyfill}}</div>
-              <div v-for="dis in feature.support.safari.no_support" class="label label-danger" v-show="dis && feature.support.safari.polyfill && (dis > feature.support.safari.polyfill)" ><i class="fa fa-safari"></i> {{dis}}</div> 
-              <div class="label label-success" v-show="feature.support.safari.native"><i class="fa fa-safari"></i> {{feature.support.safari.native}}</div>
+              <tag-group browser="safari" :support="feature.support.safari"></tag-group>
           </td>
-          <td>{{features[prop].default}}</td>
           <td class="size-td">{{feature.size}}</td>
         </tr>
       </tbody>
     </table>
+  </div>
   </div>
 </template>
 
@@ -94,7 +81,7 @@
   import features from './../assets/features.json';
 
   const POLYFILL_LINK = 'https://cdn.polyfill.io/v2/polyfill.min.js';
-  
+
   const normalizedFeatures = _.forEach(Object.assign({}, features), (_feature) => {
     const feature = _feature;
     if (feature.default) {
@@ -203,23 +190,24 @@
         });
       },
     },
-    mounted() {},
+    mounted() {
+    },
   };
 
 </script>
 
 <style scoped>
-  
-  .support-td .label {
-    margin:3px;
-  }
-  
   .feature-row {
     cursor: pointer;
   }
   
   .feature-row input[type="checkbox"] {
     pointer-events: none
+  }
+  
+  .info {
+    color: #666;
+    font-style: italic;
   }
   
   #script-tag-input {
@@ -278,7 +266,6 @@
   
   tr.checked td {
     font-weight: 700;
-    background: #cfffcf
   }
   
   .size-td {
